@@ -237,7 +237,65 @@ component accessors="true" extends="stripeBase" {
 			}
 		}
 		
-		WriteDump(var=result,abort=true);
+		return result;
+	}
+	
+	/*
+	 * @description updates the customer subscription
+	 * @hint 
+	 */
+	public Struct function updateSubscription(Required String plan,String coupon = "",Boolean prorate = true,String trial_end = "",Struct card = {}) {
+		var customer = {};
+		var httpService = new Http(
+								username=getAPIKey(),
+								password="",
+								url="#variables.apiBaseUrl#/customers/#variables.CUSTOMERID#/subscription",
+								method="POST",
+								timeout="#variables.TIMEOUT#");
+		var result = {};
+		
+		if(len(trim(arguments.coupon))) {
+			httpService.addParam(type="formField", name="coupon", value=arguments.coupon);
+		}
+		
+		if(isBoolean(arguments.prorate)) {
+			httpService.addParam(type="formField", name="prorate", value=arguments.prorate);
+		}
+		
+		if(len(trim(arguments.trial_end))) {
+			httpService.addParam(type="formField", name="trial_end", value=arguments.trial_end);
+		}
+		
+		if(listLen(structKeyList(variables.CARD,","),",") GT 0) {
+			for (key in variables.CARD) {
+				httpService.addParam(type="formField", name="card[#key#]", value=variables.CARD[key]);
+			}
+		}
+		
+		result = callAPIService(httpService);
+		
+		return result;
+	}
+	
+	/*
+	 * @description updates the customer subscription
+	 * @hint 
+	 */
+	public Struct function cancelSubscription(String at_period_end = "") {
+		var customer = {};
+		var httpService = new Http(
+								username=getAPIKey(),
+								password="",
+								url="#variables.apiBaseUrl#/customers/#variables.CUSTOMERID#/subscription",
+								method="DELETE",
+								timeout="#variables.TIMEOUT#");
+		var result = {};
+		
+		if(len(trim(arguments.at_period_end))) {
+			httpService.addParam(type="formField", name="at_period_end", value=arguments.at_period_end);
+		}
+		
+		result = callAPIService(httpService);
 		
 		return result;
 	}

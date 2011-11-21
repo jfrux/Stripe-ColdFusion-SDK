@@ -63,7 +63,7 @@ component accessors="true" {
 	}
 	
 	private String function getKeyVariableName(required String key) {
-		return "fb_" & getApiKey() & "_" & arguments.key;
+		return "stripe_" & getApiKey() & "_" & arguments.key;
 	}
 	
 	/**

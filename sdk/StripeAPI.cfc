@@ -30,6 +30,9 @@ component accessors="true" extends="stripeBase" {
 		variables.CARD = arguments.card;
 		variables.TIMEOUT = arguments.timeout;
 		variables.CUSTOMER = getCustomer(arguments.customerId);
+		if(listlen(structKeyList(variables.CUSTOMER.ACTIVE_CARD,','),',') GT 0) {
+			variables.CARD = variables.CUSTOMER.ACTIVE_CARD;
+		}
 		setPersistentData("CUSTOMER",variables.CUSTOMER);
 		return this;
 	}
@@ -245,7 +248,6 @@ component accessors="true" extends="stripeBase" {
 	 * @hint 
 	 */
 	public Struct function updateSubscription(Required String plan,String coupon = "",Boolean prorate = true,String trial_end = "",Struct card = {}) {
-		var customer = {};
 		var httpService = new Http(
 								username=getAPIKey(),
 								password="",
@@ -253,6 +255,9 @@ component accessors="true" extends="stripeBase" {
 								method="POST",
 								timeout="#variables.TIMEOUT#");
 		var result = {};
+		if(len(trim(arguments.plan))) {
+			httpService.addParam(type="formField", name="plan", value=arguments.plan);
+		}
 		
 		if(len(trim(arguments.coupon))) {
 			httpService.addParam(type="formField", name="coupon", value=arguments.coupon);
@@ -266,11 +271,11 @@ component accessors="true" extends="stripeBase" {
 			httpService.addParam(type="formField", name="trial_end", value=arguments.trial_end);
 		}
 		
-		if(listLen(structKeyList(variables.CARD,","),",") GT 0) {
+		/*if(listLen(structKeyList(variables.CARD,","),",") GT 0) {
 			for (key in variables.CARD) {
 				httpService.addParam(type="formField", name="card[#key#]", value=variables.CARD[key]);
 			}
-		}
+		}*/
 		
 		result = callAPIService(httpService);
 		

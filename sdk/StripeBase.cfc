@@ -69,62 +69,6 @@ component accessors="true" {
 	/**
 	* Utility functions
 	*/
-	private String function base64UrlDecode(required String base64UrlValue) {
-		var base64Value = replaceList(arguments.base64UrlValue, "-,_", "+,/");
-		var paddingMissingCount = 0;
-		var modulo = len(base64Value) % 4;
-		if (modulo != 0) {
-			paddingMissingCount = 4 - modulo;
-		}
-		for (var i=0; i < paddingMissingCount; i++) {
-			base64Value = base64Value & "=";
-		}
-		return toString(toBinary(base64Value), "ISO-8859-1");
-	}
-	
-	private String function base64UrlEncode(required String value) {
-		var base64Value = toBase64(arguments.value, "ISO-8859-1");
-		var base64UrlValue = replace(replaceList(base64Value, "+,/", "-,_"), "=", "", "ALL");
-		return base64UrlValue;
-	}
-	
-	private String function hashHmacSHA256(required String value, required String secretKey) {
-		if (secretKey == "") {
-			throw(errorcode="Invalid secretKey", message="Invalid secretKey (cannot be empty)", type="StripeApp Security");
-		}
-		var secretKeySpec = createObject("java", "javax.crypto.spec.SecretKeySpec" ).init(arguments.secretKey.getBytes(), "HmacSHA256");
-		var mac = createObject("java", "javax.crypto.Mac").getInstance(secretKeySpec.getAlgorithm());
-		mac.init(secretKeySpec);
-		return toString(mac.doFinal(arguments.value.getBytes()), "ISO-8859-1");
-	}
-	
-	private Struct function parseQueryString(required String queryString) {
-		var keyValue = "";
-		var keyValues = listToArray(replace(arguments.queryString,'"', '', 'ALL'), "&");
-		var parameters = structNew();
-		for (keyValue in keyValues) {
-			if (listLen(keyValue, "=") == 2) {
-				parameters[listFirst(keyValue,"=")] = listLast(keyValue,"=");
-			}
-		}
-		return parameters;
-	}
-	
-	private String function serializeQueryString(required Struct parameters, Boolean urlEncoded = true) {
-		var queryString = "";
-		for (var key in arguments.parameters) {
-			if (queryString != "") {
-				queryString = queryString  & "&";
-			}
-			if (arguments.urlEncoded) {
-				queryString = queryString & LCase(key) & "=" & urlEncodedFormat(arguments.parameters[key]);
-			} else {
-				queryString = queryString & LCase(key) & "=" & arguments.parameters[key];
-			}
-		}
-		return queryString;
-	}
-	
 	/**
 	* Uses ColdFusion request scope to cache data during the duration of the request.
 	*/

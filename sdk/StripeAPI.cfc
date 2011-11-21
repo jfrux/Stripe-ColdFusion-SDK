@@ -113,6 +113,104 @@ component accessors="true" extends="stripeBase" {
 	}
 	
 	/*
+	 * @description update a customer
+	 * @hint 
+	 */
+	public Struct function updateCustomer(
+			String coupon = "",
+			String email = "",
+			String description = "",
+			String plan = "",
+			String trial_end = "") {
+		
+		var httpService = new Http(
+								username=getAPIKey(),
+								password="",
+								url="#variables.apiBaseUrl#/customers/#variables.CUSTOMERID#",
+								method="POST",
+								timeout=variables.TIMEOUT);
+		var result = {};
+		
+		if(len(trim(arguments.coupon))) {
+			httpService.addParam(type="formField", name="coupon", value=arguments.coupon);
+		}
+		
+		if(len(trim(arguments.email))) {
+			httpService.addParam(type="formField", name="email", value=arguments.email);
+		}
+		
+		if(len(trim(arguments.plan))) {
+			httpService.addParam(type="formField", name="plan", value=arguments.plan);
+		}
+		
+		if(len(trim(arguments.trial_end))) {
+			httpService.addParam(type="formField", name="trial_end", value=arguments.trial_end);
+		}
+		
+		if(listLen(structKeyList(variables.CARD,","),",") GT 0) {
+			for (key in variables.CARD) {
+				httpService.addParam(type="formField", name="card[#key#]", value=variables.CARD[key]);
+			}
+		}
+		
+		if(len(trim(arguments.description))) {
+			httpService.addParam(type="formField", name="description", value=arguments.description);
+		}
+		
+		result = callAPIService(httpService);
+		return result;
+	}
+	
+	/*
+	 * @description delete a customer
+	 * @hint 
+	 */
+	public Struct function deleteCustomer(
+			String coupon = "",
+			String email = "",
+			String description = "",
+			String plan = "",
+			String trial_end = "") {
+		
+		var httpService = new Http(
+								username=getAPIKey(),
+								password="",
+								url="#variables.apiBaseUrl#/customers/#variables.CUSTOMERID#",
+								method="DELETE",
+								timeout=variables.TIMEOUT);
+		var result = {};
+		
+		if(len(trim(arguments.coupon))) {
+			httpService.addParam(type="formField", name="coupon", value=arguments.coupon);
+		}
+		
+		if(len(trim(arguments.email))) {
+			httpService.addParam(type="formField", name="email", value=arguments.email);
+		}
+		
+		if(len(trim(arguments.plan))) {
+			httpService.addParam(type="formField", name="plan", value=arguments.plan);
+		}
+		
+		if(len(trim(arguments.trial_end))) {
+			httpService.addParam(type="formField", name="trial_end", value=arguments.trial_end);
+		}
+		
+		if(listLen(structKeyList(variables.CARD,","),",") GT 0) {
+			for (key in variables.CARD) {
+				httpService.addParam(type="formField", name="card[#key#]", value=variables.CARD[key]);
+			}
+		}
+		
+		if(len(trim(arguments.description))) {
+			httpService.addParam(type="formField", name="description", value=arguments.description);
+		}
+		
+		result = callAPIService(httpService);
+		return result;
+	}
+	
+	/*
 	 * @description gets a customer from API if customerid is different than already provided.
 	 * @hint 
 	 */

@@ -30,9 +30,13 @@ component accessors="true" extends="stripeBase" {
 		variables.CARD = arguments.card;
 		variables.TIMEOUT = arguments.timeout;
 		variables.CUSTOMER = getCustomer(arguments.customerId);
-		if(listlen(structKeyList(variables.CUSTOMER.ACTIVE_CARD,','),',') GT 0) {
-			variables.CARD = variables.CUSTOMER.ACTIVE_CARD;
+		
+		if(structKeyExists(variables.CUSTOMER,"ACTIVE_CARD")) {
+			if(listlen(structKeyList(variables.CUSTOMER.ACTIVE_CARD,','),',') GT 0) {
+				variables.CARD = variables.CUSTOMER.ACTIVE_CARD;
+			}
 		}
+		
 		setPersistentData("CUSTOMER",variables.CUSTOMER);
 		return this;
 	}
@@ -101,11 +105,13 @@ component accessors="true" extends="stripeBase" {
 			httpService.addParam(type="formField", name="trial_end", value=arguments.trial_end);
 		}
 		
-		if(listLen(structKeyList(variables.CARD,","),",") GT 0) {
+		if(listLen(structKeyList(variables.CARD,","),",") GT 0 AND structKeyExists(variables.CARD,"number") AND len(trim(variables.CARD.number)) GT 0) {
 			for (key in variables.CARD) {
 				httpService.addParam(type="formField", name="card[#key#]", value=variables.CARD[key]);
 			}
+			WriteDump(var=variables.CARD,abort=true);
 		}
+		
 		
 		if(len(trim(arguments.description))) {
 			httpService.addParam(type="formField", name="description", value=arguments.description);
@@ -220,7 +226,7 @@ component accessors="true" extends="stripeBase" {
 	public Struct function getCustomer(String customerid = "") {
 		var customer = {};
 		var custId = '';
-		var persistedCustomer = getPersistentData("CUSTOMER",{id:0});
+		var persistedCustomer = getPersistentData("CUSTOMER");
 		var httpService = new Http(
 								username=getAPIKey(),
 								password="",
@@ -232,7 +238,7 @@ component accessors="true" extends="stripeBase" {
 		
 		if(len(trim(arguments.customerid))) {
 			custId = arguments.customerid;
-			if(persistedCustomer.id NEQ custId) {
+			if(NOT structKeyExists(persistedCustomer,"id") OR persistedCustomer.id NEQ custId) {
 				httpService.setUrl(httpService.getUrl() & "/" & arguments.customerid);
 				result = callAPIService(httpService);
 			} else {
